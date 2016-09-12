@@ -40,7 +40,6 @@
 # Commands:
 #
 # Author:
-#   stuartf
 # Symphony Integration by Vinay Mistry
 Entities = require('html-entities').XmlEntities
 entities = new Entities()

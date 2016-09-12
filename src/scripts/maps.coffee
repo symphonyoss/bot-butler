@@ -28,6 +28,7 @@
 # Commands:
 #   hubot map location - Displays a map of the location.
 #   hubot map origin to destination - Displays a route map from origin to destination location.
+#
 # Author:
 # Symphony Integration by Vinay Mistry
 Entities = require('html-entities').XmlEntities

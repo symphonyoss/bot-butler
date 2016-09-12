@@ -33,6 +33,7 @@
 #   hubot zd list pending - returns a list of pending tickets
 #   hubot zd list escalated - returns a list of escalated tickets
 #   hubot zd-<ID> - returns information about the specified ticket
+#
 # Author:
 # Symphony Integration by Vinay Mistry
 Entities = require('html-entities').XmlEntities
