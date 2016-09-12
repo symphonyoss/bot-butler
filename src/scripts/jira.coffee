@@ -22,159 +22,85 @@
 #
 #
 #
-# Description
-#   Queries Zendesk for information about support tickets
+# Description:
+#   Looks up jira issues when they're mentioned in chat
+#
+#   Will ignore users set in HUBOT_JIRA_ISSUES_IGNORE_USERS (by default, JIRA and GitHub).
+#
+# Dependencies:
+#   None
 #
 # Configuration:
-#   HUBOT_ZENDESK_USER
-#   HUBOT_ZENDESK_PASSWORD
-#   HUBOT_ZENDESK_SUBDOMAIN
+#   HUBOT_JIRA_URL (format: "https://jira-domain.com:9090")
+#   HUBOT_JIRA_IGNORECASE (optional; default is "true")
+#   HUBOT_JIRA_USERNAME (optional)
+#   HUBOT_JIRA_PASSWORD (optional)
+#   HUBOT_JIRA_ISSUES_IGNORE_USERS (optional, format: "user1|user2", default is "jira|github")
 #
 # Commands:
-#   hubot zd (all) - returns the total count of all unsolved tickets. The 'all' keyword is optional. \n
-#   hubot zd new - returns the count of all new (unassigned) tickets
-#   hubot zd open - returns the count of all open tickets
-#   hubot zd escalated - returns a count of tickets with escalated tag that are open or pending
-#   hubot zd pending - returns a count of tickets that are pending
-#   hubot zd list (all) - returns a list of all unsolved tickets. The 'all' keyword is optional.
-#   hubot zd list new - returns a list of all new tickets
-#   hubot zd list open - returns a list of all open tickets
-#   hubot zd list pending - returns a list of pending tickets
-#   hubot zd list escalated - returns a list of escalated tickets
-#   hubot zd-<ID> - returns information about the specified ticket
+#
 # Author:
+#   stuartf
 # Symphony Integration by Vinay Mistry
 Entities = require('html-entities').XmlEntities
 entities = new Entities()
 
-sys = require 'sys' # Used for debugging
-tickets_url = "https://#{process.env.HUBOT_ZENDESK_SUBDOMAIN}.zendesk.com/tickets"
-queries =
-  unsolved: "search.json?query=status<solved+type:ticket"
-  open: "search.json?query=status:open+type:ticket"
-  new: "search.json?query=status:new+type:ticket"
-  escalated: "search.json?query=tags:escalated+status:open+status:pending+type:ticket"
-  pending: "search.json?query=status:pending+type:ticket"
-  tickets: "tickets"
-  users: "users"
-
-zendesk_request = (msg, url, handler) ->
-  zendesk_user = "#{process.env.HUBOT_ZENDESK_USER}"
-  zendesk_password = "#{process.env.HUBOT_ZENDESK_PASSWORD}"
-  auth = new Buffer("#{zendesk_user}:#{zendesk_password}").toString('base64')
-  zendesk_url = "https://#{process.env.HUBOT_ZENDESK_SUBDOMAIN}.zendesk.com/api/v2"
-
-  msg.http("#{zendesk_url}/#{url}")
-    .headers(Authorization: "Basic #{auth}", Accept: "application/json")
-      .get() (err, res, body) ->
-        if err
-          msg.send "Zendesk says: #{err}"
-          return
-
-        content = JSON.parse(body)
-
-        if content.error?
-          if content.error?.title
-            msg.send "Zendesk says: #{content.error.title}"
-          else
-            msg.send "Zendesk says: #{content.error}"
-          return
-
-        handler content
-
-zendesk_user = (msg, user_id) ->
-  zendesk_request msg, "#{queries.users}/#{user_id}.json", (result) ->
-    if result.error
-      msg.send result.description
-      return
-    result.user
-
-
 module.exports = (robot) ->
+  cache = []
 
-  robot.hear /(?:zendesk|zd-)([\d]+)$/i, (msg) ->
-    ticket_id = msg.match[1]
-    zendesk_request msg, "#{queries.tickets}/#{ticket_id}.json", (result) ->
-      if result.error
-        msg.send result.description
-        return
-      msg.send {
-       format: 'MESSAGEML'
-       text: "<messageML><b>#{result.ticket.id}</b> <b>#{result.ticket.subject}</b><br/><i>Status: #{result.ticket.status.toUpperCase()}</i><br/><a href=\"#{entities.encode(tickets_url)}/#{result.ticket.id}\"/></messageML>"
-      }
+  # In case someone upgrades form the previous version, we'll default to the
+  # previous behavior.
+  jiraUrl = process.env.HUBOT_JIRA_URL || "https://#{process.env.HUBOT_JIRA_DOMAIN}"
+  jiraUsername = process.env.HUBOT_JIRA_USERNAME
+  jiraPassword = process.env.HUBOT_JIRA_PASSWORD
 
-  robot.respond /(?:zendesk|zd) (all)/i, (msg) ->
-    zendesk_request msg, queries.unsolved, (results) ->
-      ticket_count = results.count
-      msg.send "#{ticket_count} unsolved tickets"
+  if jiraUsername != undefined && jiraUsername.length > 0
+    auth = "#{jiraUsername}:#{jiraPassword}"
 
-  robot.respond /(?:zendesk|zd) pending/i, (msg) ->
-    zendesk_request msg, queries.pending, (results) ->
-      ticket_count = results.count
-      msg.send "#{ticket_count} unsolved tickets"
+  jiraIgnoreUsers = process.env.HUBOT_JIRA_ISSUES_IGNORE_USERS
+  if jiraIgnoreUsers == undefined
+    jiraIgnoreUsers = "jira|github"
 
-  robot.respond /(?:zendesk|zd) new/i, (msg) ->
-    zendesk_request msg, queries.new, (results) ->
-      ticket_count = results.count
-      msg.send "#{ticket_count} new tickets"
+  robot.http(jiraUrl + "/rest/api/2/project")
+    .auth(auth)
+    .get() (err, res, body) ->
+      json = JSON.parse(body)
+      jiraPrefixes = ( entry.key for entry in json )
+      reducedPrefixes = jiraPrefixes.reduce (x,y) -> x + "-|" + y
+      jiraPattern = "/\\b(" + reducedPrefixes + "-)(\\d+)\\b/g"
+      ic = process.env.HUBOT_JIRA_IGNORECASE
+      if ic == undefined || ic == "true"
+        jiraPattern += "i"
 
-  robot.respond /(?:zendesk|zd) escalated/i, (msg) ->
-    zendesk_request msg, queries.escalated, (results) ->
-      ticket_count = results.count
-      msg.send "#{ticket_count} escalated tickets"
+      robot.hear eval(jiraPattern), (msg) ->
+#       return if msg.message.user.name.match(new RegExp(jiraIgnoreUsers, "gi"))
 
-  robot.respond /(?:zendesk|zd) open/i, (msg) ->
-    zendesk_request msg, queries.open, (results) ->
-      ticket_count = results.count
-      msg.send "#{ticket_count} open tickets"
+        for i in msg.match
+          issue = i.toUpperCase()
+          now = new Date().getTime()
+          if cache.length > 0
+            cache.shift() until cache.length is 0 or cache[0].expires >= now
 
-  robot.respond /(?:zendesk|zd) list (all)/i, (msg) ->
-    zendesk_request msg, queries.unsolved, (results) ->
-      for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
-
-  robot.respond /(?:zendesk|zd) list new/i, (msg) ->
-    zendesk_request msg, queries.new, (results) ->
-      for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
-
-  robot.respond /(?:zendesk|zd) list pending/i, (msg) ->
-    zendesk_request msg, queries.pending, (results) ->
-      for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
-
-  robot.respond /(?:zendesk|zd) list escalated/i, (msg) ->
-    zendesk_request msg, queries.escalated, (results) ->
-      for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
-
-  robot.respond /(?:zendesk|zd) list open/i, (msg) ->
-    zendesk_request msg, queries.open, (results) ->
-      for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
-
-  robot.respond /(?:zendesk|zd-)([\d]+)$/i, (msg) ->
-    ticket_id = msg.match[1]
-    zendesk_request msg, "#{queries.tickets}/#{ticket_id}.json", (result) ->
-      if result.error
-        msg.send result.description
-        return
-       msg.send {
-       format: 'MESSAGEML'
-       text: "<messageML><b>#{result.ticket.id}</b> <b>#{result.ticket.subject}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.ticket.id}\"/><br/>Status: #{result.ticket.status.toUpperCase()}</messageML>"
-       }
+          msg.send item.message for item in cache when item.issue is issue
+          if cache.length == 0 or (item for item in cache when item.issue is issue).length == 0
+            robot.http(jiraUrl + "/rest/api/2/issue/" + issue)
+              .auth(auth)
+              .get() (err, res, body) ->
+                try
+                  json = JSON.parse(body)
+                  key = json.key
+#        Return Cache Results
+                  message = "[ Cache" + key + "] " + json.fields.summary
+                  message += '\n Cache Status: ' + json.fields.status.name
+#        Return API Results
+                  msg.send {
+                         format: 'MESSAGEML'
+                         text: "<messageML><b>#{key}</b> <b>#{json.fields.summary}</b><br/><i>Status: #{json.fields.status.name.toUpperCase()}    Priority: #{json.fields.priority.name.toUpperCase()}</i><br/><i>Assignee: #{json
+.fields.assignee.displayName}        Reported By: #{json.fields.reporter.displayName}</i><br/><a href=\"#{entities.encode(jiraUrl)}/browse/#{key}\"/></messageML>"
+                  }
+#                  cache.push({issue: issue, expires: now + 120000, message: message})
+                catch error
+                  try
+                    msg.send "[*ERROR*] " + json.errorMessages[0]
+                  catch reallyError
+                    msg.send "[*ERROR*] " + reallyError
