@@ -86,7 +86,7 @@ zendesk_user = (msg, user_id) ->
 
 module.exports = (robot) ->
 
-  robot.hear /(?:zendesk|zd-)([\d]+)$/i, (msg) ->
+  robot.hear /(?:zendesk|zd-|zendesk.com\/tickets\/)([\d]+)/i, (msg) ->
     ticket_id = msg.match[1]
     zendesk_request msg, "#{queries.tickets}/#{ticket_id}.json", (result) ->
       if result.error
