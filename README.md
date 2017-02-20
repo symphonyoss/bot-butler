@@ -1,40 +1,52 @@
-# hubot-symphony-scripts
+# docker-butler
+This is a Docker container for running Symphony Hubot (aka. Butler). [Symphony](http://www.symphony.com).
 
-These are a collection of scripts for hubot, a chat bot for your company that can be integrated with [Symphony](http://www.symphony.com).
+## Clone Repository
+To clone this repository please use the following:
 
-There is a new system for distributing scripts, and adding them to your own hubot. Locate the appropriate script in the [hubot-scripts organization](https://github.com/hubot-scripts) or on [npm tagged as *hubot-scripts*](https://www.npmjs.org/browse/keyword/hubot-scripts), and follow the script's documentation. In general, this will be something like:
+    git clone https://github.com/mistryvinay/docker-butler.git
 
-Add a line to external-scripts.json
-Add a line to package.json
-Add environment variables, depending on the script
-Discovering
+## Configure Container
+To configure your container please refer to the below.
 
-## Dependencies
+Below is the folder structure of the Docker container.
+butler
+├── config
+│   ├── certs
+│   │   ├── bot.user5-PrivateKey.pem
+│   │   └── bot.user5-PublicCert.pem
+│   └── scripts
+│       └── stock.coffee
+├── Dockerfile
+├── package.json
+├── README.md
+└── start.sh
 
-These scripts require Hubot and the Symphony Hubot adapter to be already installed.
-[Hubot](https://hubot.github.com/)
-[Symphony Adapter](https://github.com/symphonyoss/hubot-symphony)
+1. Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the folder butler/config/certs.  Which ever name you choose for your certificates ensure that the /butler/start.sh also references this certificate name as well. Below are the lines that should be edited:
+    export HUBOT_SYMPHONY_PUBLIC_KEY=/home/butler/certs/bot.user5-PublicCert.pem
+    export HUBOT_SYMPHONY_PRIVATE_KEY=/home/butler/certs/bot.user5-PrivateKey.pem
+    export HUBOT_SYMPHONY_PASSPHRASE=changeit
 
-## Installing
+2. Start.sh: This defines the environment variables at startup including your Pod information.  
 
-Once you have Hubot installed, you should already have hubot-scripts installed. Check package.json to be sure. If that is the case, you update hubot-scripts.json to list any scripts from this repository you want to load. The default hubot-scripts.json looks like:
+3. Scripts:  This is where you can include your Hubot scripts.  These will be included in the build of the image.  You can also include an external scripts folder which will be loaded at runtime.  This is shown in the ## Run Container section.
 
-    ["redis-brain.coffee", "shipit.coffee"]
+4. Bot name:  Edit the /butler/Dockerfile to define the name of your Bot.  Below shows the line where it should be modified:
+    RUN yo hubot --owner="Vinay <vinay@symphony.com>" --name="butler" --adapter="symphony" --defaults --no-insight
 
-If you update hubot-scripts in package.json, you will automatically get updates to your scripts listed here.
+Whichever name you define for Bot in the /butler/Dockerfile should also be included in the /butler/stat.sh line shown below:
+    bin/hubot -a symphony --name butler
 
-Alternatively, you can copy files from this repository into your scripts directory. Note that you would not get updates from the hubot-scripts repository unless you copy them yourself.
+## Build Container
+To build the below container use the following:
 
-Any third-party dependencies for scripts need the addition of your package.json otherwise a lot of errors will be thrown during the start up of your hubot. You can find a list of dependencies for a script in the documentation header at the top of the script.
+    docker build -t butler:v1.0.0 .
 
-Restart your robot, and you're good to go.
+## Run Container
+To run the container use the following:
 
-All the scripts in this repository are located in [`src/scripts`][src-scripts].
+    docker run butler:v1.0.0
 
-## Writing
+You can also run the container and include an external script folder. This will allow you to load new scripts at runtime of the container using the below:
 
-Want to write your own Hubot script? The best way is to take a look at an existing script and see how things are set up. Hubot scripts are written in CoffeeScript, a higher-level implementation of JavaScript.
-
-## Documentation
-
-All scripts in hubot-symphony-scripts should contain a documentation header so people know everything about the script.
+    docker run -v /myfolder/scripts:/home/butler/scripts butler:v1.0.0
