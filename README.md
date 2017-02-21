@@ -42,15 +42,14 @@ export HUBOT_SYMPHONY_HOST=$FOUNDATION_POD_URL/pod
 export HUBOT_SYMPHONY_KM_HOST=$FOUNDATION_API_URL/keyauth
 export HUBOT_SYMPHONY_AGENT_HOST=$FOUNDATION_API_URL/agent
 ```
-- Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the folder butler/config/certs. Which ever name you choose for your certificates ensure that the /butler/start.sh also references this certificate name as well.
+- Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the `./certs` folder
 ```
 export HUBOT_SYMPHONY_PUBLIC_KEY=./certs/bot-PublicCert.pem
 export HUBOT_SYMPHONY_PRIVATE_KEY=./certs/bot-PrivateKey.pem
 export HUBOT_SYMPHONY_PASSPHRASE=changeit
 ```
-- Bot butler parameters: name of the bot, log level and port to expose (for container deployment)
+- Bot butler parameters: log level and port to expose (for container deployment)
 ```
-export BOT_NAME=butler
 export HUBOT_LOG_LEVEL=debug
 export PORT=8080
 ```
