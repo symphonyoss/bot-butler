@@ -18,9 +18,18 @@
   "bugs": {
     "url": "https://github.com/symphonyoss/bot-butler/issues"
   },
+  "hubot-scripts": [
+    "cashtag-script.coffee",
+    "jira.coffee",
+    "maps.coffee",
+    "marketdata.coffee",
+    "stock.coffee",
+    "zendesk.coffee"
+  ],
   "keywords": [
     "symphonyoss",
     "hubot",
+    "hubot-scripts",
     "bot",
     "scripts",
     "symphony"
@@ -46,5 +55,9 @@
   },
   "engines": {
     "node": "0.10.x"
+  },
+  "devDependencies": {
+    "generator-hubot": "^0.4.0",
+    "yo": "^1.8.5"
   }
 }

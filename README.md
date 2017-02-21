@@ -33,7 +33,8 @@ docker run -v /myscripts:/home/butler/scripts -v /mycerts:/home/butler/certs but
 Bot configurations are defined by environment variables in `env.sh` file, located in the root folder of the project; since the file may contain sensitive information, it is [ignored by github](.gitignore); a `env.sh.sample` file is provided to copy from.
 
 Below are the configuration items:
-1. Symphony Pod coordinates: the Symphony API endpoint coordinates; make sure they point to the Symphony Pod you want to use and that you have access to it:
+
+- Symphony Pod coordinates: the Symphony API endpoint coordinates; make sure they point to the Symphony Pod you want to use and that you have access to it:
 ```
 FOUNDATION_API_URL=https://foundation-dev-api.symphony.com
 FOUNDATION_POD_URL=https://foundation-dev.symphony.com
@@ -41,46 +42,51 @@ export HUBOT_SYMPHONY_HOST=$FOUNDATION_POD_URL/pod
 export HUBOT_SYMPHONY_KM_HOST=$FOUNDATION_API_URL/keyauth
 export HUBOT_SYMPHONY_AGENT_HOST=$FOUNDATION_API_URL/agent
 ```
-2. Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the folder butler/config/certs. Which ever name you choose for your certificates ensure that the /butler/start.sh also references this certificate name as well.
+- Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the folder butler/config/certs. Which ever name you choose for your certificates ensure that the /butler/start.sh also references this certificate name as well.
 ```
 export HUBOT_SYMPHONY_PUBLIC_KEY=./certs/bot-PublicCert.pem
 export HUBOT_SYMPHONY_PRIVATE_KEY=./certs/bot-PrivateKey.pem
 export HUBOT_SYMPHONY_PASSPHRASE=changeit
 ```
-3. Bot butler parameters: name of the bot, log level and port to expose (for container deployment)
+- Bot butler parameters: name of the bot, log level and port to expose (for container deployment)
 ```
 export BOT_NAME=butler
 export HUBOT_LOG_LEVEL=debug
 export PORT=8080
 ```
 
-## Installing
-Once you have Hubot installed, you should already have hubot-scripts installed. Check package.json to be sure. If that is the case, you update hubot-scripts.json to list any scripts from this repository you want to load. The default hubot-scripts.json looks like:
+## Customise scripts
 
+### Using a script
+Hubot scripts can be automatically referenced if:
+- listed in the [hubot-scripts organization](https://github.com/hubot-scripts) page
+- [tagged on npmjs as *hubot-scripts*](https://www.npmjs.org/browse/keyword/hubot-scripts)
+
+You can add them into `external-scripts.json` file, which is created by `npm run generate-hubot` command with some default values:
 ```
-["redis-brain.coffee", "shipit.coffee"]
+[
+  "hubot-diagnostics",
+  "hubot-help",
+  "hubot-heroku-keepalive",
+  "hubot-google-images",
+  "hubot-google-translate",
+  "hubot-pugme",
+  "hubot-maps",
+  "hubot-redis-brain",
+  "hubot-rules",
+  "hubot-shipit"
+]
 ```
 
-If you update hubot-scripts in package.json, you will automatically get updates to your scripts listed here.
+### Writing a custom script
+Want to write your own Hubot script? The best way is to take a look at [an existing script](src/scripts) and follow the [hubot-scripts documentation](https://www.npmjs.com/package/hubot-scripts).
 
-Alternatively, you can copy files from this repository into your scripts directory. Note that you would not get updates from the hubot-scripts repository unless you copy them yourself.
+All custom Hubot scripts in [src/scripts](src/scripts) are included in the bot; to define a sub-set of them, you can define a `hubot-scripts.json` file, which is created by `npm run generate-hubot` command and is empty by default.
 
 Any third-party dependencies for scripts need the addition of your package.json otherwise a lot of errors will be thrown during the start up of your hubot. You can find a list of dependencies for a script in the documentation header at the top of the script.
 
-Restart your robot, and you're good to go.
-
-All the scripts in this repository are located in [src/scripts](src/scripts).
-
-## Writing a custom script
-Want to write your own Hubot script? The best way is to take a look at [an existing script](src/scripts) and see how things are set up. Hubot scripts are written in CoffeeScript, a higher-level implementation of JavaScript.
-
-### Distributing the script
-There is a new system for distributing scripts, and adding them to your own hubot. Locate the appropriate script in the [hubot-scripts organization](https://github.com/hubot-scripts) or on [npm tagged as *hubot-scripts*](https://www.npmjs.org/browse/keyword/hubot-scripts), and follow the script's documentation. In general, this will be something like:
-
-1. Add a line to external-scripts.json
-2. Add a line to package.json
-3. Add environment variables, depending on the script
-4. Discovering
+### Distributing a custom script
+The easiest way is to [publish the npm package](https://docs.npmjs.com/getting-started/publishing-npm-packages) using *hubot-scripts* as tag; read more on https://www.npmjs.org/browse/keyword/hubot-scripts
 
 ## Project dependencies
 Bot Butler scripts depend on the following components:
