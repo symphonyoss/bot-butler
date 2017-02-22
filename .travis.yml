@@ -3,7 +3,7 @@ node_js:
   - node
 
 script:
-  - "yarn install"
+  - "yarn install ; yarn run generate-hubot"
 
 sudo: false
 before_install:
