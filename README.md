@@ -8,25 +8,29 @@ The Bot Butler is a collection of scripts for [Hubot](https://hubot.github.com/)
 Scripts can be tested locally or deployed as a Docker container; additional scripts can be easily defined and distributed.
 
 ## Local run
-1. Checkout the bot-butler project - `git clone https://github.com/symphonyoss/bot-butler.git ; cd bot-butler`
-2. Configure environment variables (see below) - `cp env.sh.sample env.sh`
-3. Generate the Hubot - `npm run generate-hubot`
-4. Run it - `npm run start-bot-butler`
+1. [Install yarn](https://yarnpkg.com/en/docs/install), a NodeJS build tool
+2. `git clone https://github.com/symphonyoss/bot-butler.git ; cd bot-butler` - Checkout the bot-butler project
+3. `cp env.sh.sample env.sh` - Configure environment variables (see below)
+4. `yarn install --pure-lockfile` - Install all project dependencies (in `./node_modules` folder)
+5. `yarn generate-hubot` - Generate the hubot butler bot in `./butler-build` folder
+6. `yarn run start-bot-butler` - Run it
 
-If you want to clean the generated Hubot, simply type `rm -r ./build` from the project root folder; to know more about what scripts do, checkout [package.json](package.json).
+To clean the generated bot simply type `yarn run clean`; Yarn will delegate script execution to bash scripts located in the [./bootstrap](bootstrap) folder; to know more, checkout [package.json](package.json).
 
 ## Docker run
 1. Checkout project and set environment variables (as in local run)
 2. Create the Docker image - `docker build -t butler:v0.9.0 .`
 3. Run the Docker image - `docker run butler:v0.9.0`
 
-By default, the following folders will be mounted:
+The root folder of the project will be mounted on `/home/butler`; as such, the following folder will be inherited by default:
 - `src/scripts` into `/home/butler/scripts`
+- `./env.sh` into `/home/butler/env.sh`
+- `./bootstrap` into `/home/butler/bootstrap`
 - `./certs` into `/home/butler/certs`
 
 To override default values, use the following syntax:
 ```
-docker run -v /myscripts:/home/butler/scripts -v /mycerts:/home/butler/certs butler:v1.0.0
+docker run -v /myscripts:/home/butler/scripts -v /mycerts:/home/butler/certs butler:v0.9.0
 ```
 
 ## Configuration
@@ -61,21 +65,7 @@ Hubot scripts can be automatically referenced if:
 - listed in the [hubot-scripts organization](https://github.com/hubot-scripts) page
 - [tagged on npmjs as *hubot-scripts*](https://www.npmjs.org/browse/keyword/hubot-scripts)
 
-You can add them into `external-scripts.json` file, which is created by `npm run generate-hubot` command with some default values:
-```
-[
-  "hubot-diagnostics",
-  "hubot-help",
-  "hubot-heroku-keepalive",
-  "hubot-google-images",
-  "hubot-google-translate",
-  "hubot-pugme",
-  "hubot-maps",
-  "hubot-redis-brain",
-  "hubot-rules",
-  "hubot-shipit"
-]
-```
+You can add them into [package.json](package.json) as `dependencies` and they'll be automatically added into `external-scripts.json` file.
 
 ### Writing a custom script
 Want to write your own Hubot script? The best way is to take a look at [an existing script](src/scripts) and follow the [hubot-scripts documentation](https://www.npmjs.com/package/hubot-scripts).
@@ -91,9 +81,11 @@ The easiest way is to [publish the npm package](https://docs.npmjs.com/getting-s
 Bot Butler scripts depend on the following components:
 - [Hubot](https://hubot.github.com/)
 - [Hubot Symphony adapter](https://github.com/symphonyoss/hubot-symphony)
-- Other NPM dependencies defined in [package.json](package.json)
+- Other NPM dependencies defined in [package.json](package.json); please note that dependency versions are snapshotted by the [yarn.lock](yarn.lock) file, ensuring that the runtime node modules being used across different environments are the same.
 
-Transitive dependencies are list in the [yarn.lock](yarn.lock) file, which is "manually" updated by running the command `npm run generate-yarn-lockfile`; the [Versioneye dashboard]() provides a license and security check.
+In order to update dependency versions to their latest allowed values (as specified by `package.json`), simply run the command `yarn install` without `--pure-lockfile`; read more on Yarn [install](https://yarnpkg.com/en/docs/cli/install) command.
+
+The [Versioneye dashboard](https://www.versioneye.com/user/projects/58ac50944ca76f0047de1847?child=summary) reads the yarn.lock version available on github and provides license/security checks and notifications.
 
 ## Documentation
 All scripts in hubot-symphony-scripts should contain a documentation header so people know everything about the script.

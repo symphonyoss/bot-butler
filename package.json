@@ -7,25 +7,16 @@
   "config": {
     "owner": "Vinay Mistry <vinay@symphony.com>",
     "botname": "butler",
-    "buildfolder": "./build"
+    "botpath": "./butler-build"
   },
   "scripts": {
-    "generate-hubot": "npm i generator-hubot yo --save-dev; mkdir -p $npm_package_config_buildfolder; cd build; yo hubot --owner=\"$npm_package_config_owner\" --name=\"$npm_package_config_botname\" --adapter='symphony' --defaults --no-insight; cd -",
-    "clean": "rm -rf $npm_package_config_buildfolder",
-    "start-bot-butler": ". ./env.sh ; $npm_package_config_buildfolder/bin/hubot -a symphony --name $npm_package_config_botname",
-    "generate-yarn-lockfile": "npm install -g yarn && npm install --production && yarn install"
+    "generate-hubot": "./bootstrap/build.sh \"$npm_package_config_owner\" \"$npm_package_config_botname\"",
+    "clean": "rm -rf $npm_package_config_botpath ./node_modules",
+    "start-bot-butler": "./bootstrap/start.sh \"$npm_package_config_botname\""
   },
   "bugs": {
     "url": "https://github.com/symphonyoss/bot-butler/issues"
   },
-  "hubot-scripts": [
-    "cashtag-script.coffee",
-    "jira.coffee",
-    "maps.coffee",
-    "marketdata.coffee",
-    "stock.coffee",
-    "zendesk.coffee"
-  ],
   "keywords": [
     "symphonyoss",
     "hubot",

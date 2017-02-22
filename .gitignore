@@ -4,3 +4,4 @@ node_modules
 certs/
 env.sh
 build/
+*-build/
