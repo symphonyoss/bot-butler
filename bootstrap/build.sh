@@ -13,7 +13,7 @@ if [[ -d $BUILD_FOLDER ]]; then
 else
   mkdir $BUILD_FOLDER
   cp -Rf env.sh certs $BUILD_FOLDER
-  pushd "$_"
+  pushd $BUILD_FOLDER
   export PATH=$PATH:$PWD/node_modules/.bin
   yo hubot --owner="$CONFIG_OWNER" --no-color --name="$BOT_NAME" --adapter='symphony' --defaults  --no-insight
   popd
