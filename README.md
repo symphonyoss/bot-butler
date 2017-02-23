@@ -6,25 +6,25 @@ The Bot Butler is a collection of scripts for [Hubot](https://hubot.github.com/)
 Scripts can be tested locally or deployed as a Docker container; additional scripts can be easily defined and distributed.
 
 ## Local run
-1. [Install yarn](https://yarnpkg.com/en/docs/install), a NodeJS build tool
-2. `git clone https://github.com/symphonyoss/bot-butler.git ; cd bot-butler` - Checkout the bot-butler project
-3. `cp env.sh.sample env.sh` - Configure environment variables (see below)
-4. `yarn install --pure-lockfile` - Install all project dependencies (in `./node_modules` folder)
-5. `yarn generate-hubot` - Generate the hubot butler bot in `./butler-build` folder
-6. `yarn run start-bot-butler` - Run it
+1. `git clone https://github.com/symphonyoss/bot-butler.git ; cd bot-butler` - Checkout the bot-butler project
+2. `cp env.sh.sample env.sh` - Configure environment variables (see below)
+3. [Install NodeJS](https://nodejs.org/en/download/) 4.0 or higher
+4. [Install yarn](https://yarnpkg.com/en/docs/install), a NodeJS build tool
+5. `yarn install --pure-lockfile` - Install all project dependencies (in `./node_modules` folder)
+6. `yarn generate-hubot` - Generate the hubot butler bot in `./butler-build` folder
+7. `yarn run start-bot-butler` - Run it
 
 To clean the generated bot simply type `yarn run clean`; Yarn will delegate script execution to bash scripts located in the [./bootstrap](bootstrap) folder; to know more, checkout [package.json](package.json).
 
 ## Docker run
-1. Checkout project and set environment variables (as in local run)
+1. Checkout project and set environment variables (as above, steps 1 and 2)
 2. Create the Docker image - `docker build -t butler:v0.9.0 .`
 3. Run the Docker image - `docker run butler:v0.9.0`
 
 The root folder of the project will be mounted on `/home/butler`; as such, the following folder will be inherited by default:
-- `src/scripts` into `/home/butler/scripts`
-- `./env.sh` into `/home/butler/env.sh`
-- `./bootstrap` into `/home/butler/bootstrap`
-- `./certs` into `/home/butler/certs`
+- `src/scripts` into `/home/butler/butler-build/scripts`
+- `./env.sh` into `/home/butler/butler-build/env.sh`
+- `./certs` into `/home/butler/butler-build/certs`
 
 To override default values, use the following syntax:
 ```

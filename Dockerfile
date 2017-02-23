@@ -11,7 +11,6 @@ MAINTAINER "Vinay" <vinay@symphony.com>
 
 # Install project root folder
     ADD . /home/butler
-    ADD src/scripts /home/butler/scripts
 
 # Add external directories (but can be overridden at docker run)
     # ADD ./bootstrap /home/butler/bootstrap
@@ -28,6 +27,7 @@ MAINTAINER "Vinay" <vinay@symphony.com>
     # Not sure why this is needed, not working to define as devDependencies in package.json
     RUN $HOME/.yarn/bin/yarn add yo generator-hubot --dev
     RUN $HOME/.yarn/bin/yarn run generate-hubot
+    RUN cp -rf src/scripts butler-build/scripts
 
 # Lets get this show on the road:
     EXPOSE 8080
