@@ -1,36 +1,34 @@
 FROM nodesource/node:latest
 MAINTAINER "Vinay" <vinay@symphony.com>
 
-# Required environment variables:
+# Required environment variables
     ENV container docker
 
 # Create user account for bot
     RUN groupadd -g 501 butler && \
     useradd -m -u 501 -g 501 butler
-
-# Install required applications
-    ADD ./package.json /home/butler/package.json
     WORKDIR /home/butler
-    RUN npm install
-    RUN npm install -g yo generator-hubot && \
-    rm -rf /var/lib/apt/lists/*
 
-# Add external directories:
-    ADD ./config/certs /home/butler/certs/
-    ADD ./config/scripts /home/butler/scripts/
-    ADD ./start.sh /home/butler/
+# Install project root folder
+    ADD . /home/butler
 
-# Update file permissions:
-    RUN chown -R butler:butler /home/butler && \
-    chmod +x /home/butler/start.sh
+# Add external directories (but can be overridden at docker run)
+    # ADD ./bootstrap /home/butler/bootstrap
+    # ADD ./env.sh /home/butler/env.sh
+    # ADD ./certs /home/butler/certs/
 
-# Create Butler bot instance:
+# Update file permissions
+    RUN chown -R butler:butler /home/butler
+
+# Install Yarn and configure bot working directory
     USER butler
-    WORKDIR /home/butler
-    RUN mkdir -p /home/butler/.config/configstore && \
-    echo "optOut: true" > /home/butler/.config/configstore/insight-yo.yml
-    RUN yo hubot --owner="Vinay <vinay@symphony.com>" --name="butler" --adapter="symphony" --defaults --no-insight
+    RUN curl -o- -L https://yarnpkg.com/install.sh | bash
+    RUN $HOME/.yarn/bin/yarn install --pure-lockfile
+    # Not sure why this is needed, not working to define as devDependencies in package.json
+    RUN $HOME/.yarn/bin/yarn add yo generator-hubot --dev
+    RUN $HOME/.yarn/bin/yarn run generate-hubot
+    RUN cp -rf src/scripts butler-build/scripts
 
 # Lets get this show on the road:
     EXPOSE 8080
-    ENTRYPOINT ./start.sh
+    ENTRYPOINT $HOME/.yarn/bin/yarn run start-bot-butler

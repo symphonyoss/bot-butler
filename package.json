@@ -1,15 +1,40 @@
 {
-  "name": "butler",
-  "version": "1.0.0",
-  "private": true,
+  "name": "bot-butler",
+  "version": "0.9.0",
+  "license": "Apache-2.0",
   "author": "Vinay Mistry <vinay@symphony.com>",
   "description": "Your personal assistant",
+  "config": {
+    "owner": "Vinay Mistry <vinay@symphony.com>",
+    "botname": "butler",
+    "botpath": "./butler-build"
+  },
+  "scripts": {
+    "generate-hubot": "./bootstrap/build.sh \"$npm_package_config_owner\" \"$npm_package_config_botname\"",
+    "clean": "rm -rf $npm_package_config_botpath ./node_modules",
+    "start-bot-butler": "./bootstrap/start.sh \"$npm_package_config_botname\""
+  },
+  "bugs": {
+    "url": "https://github.com/symphonyoss/bot-butler/issues"
+  },
+  "keywords": [
+    "symphonyoss",
+    "hubot",
+    "hubot-scripts",
+    "bot",
+    "scripts",
+    "symphony"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/symphonyoss/bot-butler.git"
+  },
   "dependencies": {
     "hubot": "^2.19.0",
     "hubot-diagnostics": "0.0.1",
     "hubot-google-images": "^0.2.6",
     "hubot-google-translate": "^0.2.0",
-    "hubot-help": "^0.1.3",
+    "hubot-help": "^0.2.0",
     "hubot-heroku-keepalive": "^1.0.2",
     "hubot-maps": "0.0.2",
     "hubot-pugme": "^0.1.0",
@@ -17,9 +42,13 @@
     "hubot-rules": "^0.1.1",
     "hubot-scripts": "^2.17.2",
     "hubot-shipit": "^0.2.0",
-    "hubot-symphony": "^1.1.8"
+    "hubot-symphony": "^1.1.9"
   },
   "engines": {
     "node": "0.10.x"
+  },
+  "devDependencies": {
+    "generator-hubot": "^0.4.0",
+    "yo": "^1.8.5"
   }
 }

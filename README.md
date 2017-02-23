@@ -1,58 +1,91 @@
-# docker-butler
-This is a Docker container for running Symphony Hubot (aka. Butler). [Symphony](http://www.symphony.com).
+[![Symphony Software Foundation - Active](https://cdn.rawgit.com/symphonyoss/contrib-toolbox/master/images/ssf-badge-incubating.svg)](https://symphonyoss.atlassian.net/wiki/display/FM/Incubating) [![Build Status](https://travis-ci.org/symphonyoss/bot-butler.svg)](https://travis-ci.org/symphonyoss/bot-butler) [![Dependencies](https://www.versioneye.com/user/projects/58ac50944ca76f0047de1847/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/58ac50944ca76f0047de1847?child=summary)
 
-## Clone Repository
-To clone this repository please use the following:
+# Bot Butler
+The Bot Butler is a collection of scripts for [Hubot](https://hubot.github.com/) that have been built and tested against [Symphony](http://www.symphony.com), using the [Hubot Symphony adapter](https://github.com/symphonyoss/hubot-symphony).
 
-    git clone https://github.com/mistryvinay/docker-butler.git
+Scripts can be tested locally or deployed as a Docker container; additional scripts can be easily defined and distributed.
 
-## Configure Container
-To configure your container please refer to the below.
+## Local run
+1. `git clone https://github.com/symphonyoss/bot-butler.git ; cd bot-butler` - Checkout the bot-butler project
+2. `cp env.sh.sample env.sh` - Configure environment variables (see below)
+3. [Install NodeJS](https://nodejs.org/en/download/) 4.0 or higher
+4. [Install yarn](https://yarnpkg.com/en/docs/install), a NodeJS build tool
+5. `yarn install --pure-lockfile` - Install all project dependencies (in `./node_modules` folder)
+6. `yarn generate-hubot` - Generate the hubot butler bot in `./butler-build` folder
+7. `yarn run start-bot-butler` - Run it
 
-Below is the folder structure of the Docker container.
+To clean the generated bot simply type `yarn run clean`; Yarn will delegate script execution to bash scripts located in the [./bootstrap](bootstrap) folder; to know more, checkout [package.json](package.json).
 
+## Docker run
+1. Checkout project and set environment variables (as above, steps 1 and 2)
+2. Create the Docker image - `docker build -t butler:v0.9.0 .`
+3. Run the Docker image - `docker run butler:v0.9.0`
+
+The root folder of the project will be mounted on `/home/butler`; as such, the following folder will be inherited by default:
+- `src/scripts` into `/home/butler/butler-build/scripts`
+- `./env.sh` into `/home/butler/butler-build/env.sh`
+- `./certs` into `/home/butler/butler-build/certs`
+
+To override default values, use the following syntax:
 ```
-butler
-├── config
-│   ├── certs
-│   │   ├── bot.user5-PrivateKey.pem
-│   │   └── bot.user5-PublicCert.pem
-│   └── scripts
-│       └── stock.coffee
-├── Dockerfile
-├── package.json
-├── README.md
-└── start.sh
+docker run -v /myscripts:/home/butler/scripts -v /mycerts:/home/butler/certs butler:v0.9.0
 ```
 
-1. Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the folder butler/config/certs.  Which ever name you choose for your certificates ensure that the /butler/start.sh also references this certificate name as well. Below are the lines that should be edited:
+## Configuration
+Bot configurations are defined by environment variables in `env.sh` file, located in the root folder of the project; since the file may contain sensitive information, it is [ignored by github](.gitignore); a `env.sh.sample` file is provided to copy from.
+
+Below are the configuration items:
+
+- Symphony Pod coordinates: the Symphony API endpoint coordinates; make sure they point to the Symphony Pod you want to use and that you have access to it:
 ```
-    export HUBOT_SYMPHONY_PUBLIC_KEY=/home/butler/certs/bot.user5-PublicCert.pem
-    export HUBOT_SYMPHONY_PRIVATE_KEY=/home/butler/certs/bot.user5-PrivateKey.pem
-    export HUBOT_SYMPHONY_PASSPHRASE=changeit
+FOUNDATION_API_URL=https://foundation-dev-api.symphony.com
+FOUNDATION_POD_URL=https://foundation-dev.symphony.com
+export HUBOT_SYMPHONY_HOST=$FOUNDATION_POD_URL/pod
+export HUBOT_SYMPHONY_KM_HOST=$FOUNDATION_API_URL/keyauth
+export HUBOT_SYMPHONY_AGENT_HOST=$FOUNDATION_API_URL/agent
 ```
-2. Start.sh: This defines the environment variables at startup including your Pod information.  
+Read more on [hubot-symphony](https://github.com/symphonyoss/hubot-symphony) docs.
 
-3. Scripts:  This is where you can include your Hubot scripts.  These will be included in the build of the image.  You can also include an external scripts folder which will be loaded at runtime.  This is shown in the "Run Container" section.
-
-4. Bot name:  Edit the /butler/Dockerfile to define the name of your Bot.  Below shows the line where it should be modified:
+- Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the `./certs` folder
 ```
-    RUN yo hubot --owner="Vinay <vinay@symphony.com>" --name="butler" --adapter="symphony" --defaults --no-insight
+export HUBOT_SYMPHONY_PUBLIC_KEY=./certs/bot-PublicCert.pem
+export HUBOT_SYMPHONY_PRIVATE_KEY=./certs/bot-PrivateKey.pem
+export HUBOT_SYMPHONY_PASSPHRASE=changeit
 ```
-Whichever name you define for Bot in the /butler/Dockerfile should also be included in the /butler/stat.sh line shown below:
+- Bot butler parameters: log level and port to expose (for container deployment)
 ```
-    bin/hubot -a symphony --name butler
+export HUBOT_LOG_LEVEL=debug
+export PORT=8080
 ```
-## Build Container
-To build the below container use the following:
 
-    docker build -t butler:v1.0.0 .
+## Customise scripts
 
-## Run Container
-To run the container use the following:
+### Using a script
+Hubot scripts can be automatically referenced if:
+- listed in the [hubot-scripts organization](https://github.com/hubot-scripts) page
+- [tagged on npmjs as *hubot-scripts*](https://www.npmjs.org/browse/keyword/hubot-scripts)
 
-    docker run butler:v1.0.0
+You can add them into [package.json](package.json) as `dependencies` and they'll be automatically added into `external-scripts.json` file.
 
-You can also run the container and include an external script folder. This will allow you to load new scripts at runtime of the container using the below:
+### Writing a custom script
+Want to write your own Hubot script? The best way is to take a look at [an existing script](src/scripts) and follow the [hubot-scripts documentation](https://www.npmjs.com/package/hubot-scripts).
 
-    docker run -v /myfolder/scripts:/home/butler/scripts butler:v1.0.0
+All custom Hubot scripts in [src/scripts](src/scripts) are included in the bot; to define a sub-set of them, you can define a `hubot-scripts.json` file, which is created by `npm run generate-hubot` command and is empty by default.
+
+Any third-party dependencies for scripts need the addition of your package.json otherwise a lot of errors will be thrown during the start up of your hubot. You can find a list of dependencies for a script in the documentation header at the top of the script.
+
+### Distributing a custom script
+The easiest way is to [publish the npm package](https://docs.npmjs.com/getting-started/publishing-npm-packages) using *hubot-scripts* as tag; read more on https://www.npmjs.org/browse/keyword/hubot-scripts
+
+## Project dependencies
+Bot Butler scripts depend on the following components:
+- [Hubot](https://hubot.github.com/)
+- [Hubot Symphony adapter](https://github.com/symphonyoss/hubot-symphony)
+- Other NPM dependencies defined in [package.json](package.json); please note that dependency versions are snapshotted by the [yarn.lock](yarn.lock) file, ensuring that the runtime node modules being used across different environments are the same.
+
+In order to update dependency versions to their latest allowed values (as specified by `package.json`), simply run the command `yarn install` without `--pure-lockfile`; read more on Yarn [install](https://yarnpkg.com/en/docs/cli/install) command.
+
+The [Versioneye dashboard](https://www.versioneye.com/user/projects/58ac50944ca76f0047de1847?child=summary) reads the yarn.lock version available on github and provides license/security checks and notifications.
+
+## Documentation
+All scripts in hubot-symphony-scripts should contain a documentation header so people know everything about the script.
