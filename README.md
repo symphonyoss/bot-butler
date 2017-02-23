@@ -38,11 +38,10 @@ Below are the configuration items:
 
 - Symphony Pod coordinates: the Symphony API endpoint coordinates; make sure they point to the Symphony Pod you want to use and that you have access to it:
 ```
-FOUNDATION_API_URL=https://foundation-dev-api.symphony.com
-FOUNDATION_POD_URL=https://foundation-dev.symphony.com
-export HUBOT_SYMPHONY_HOST=$FOUNDATION_POD_URL/pod
-export HUBOT_SYMPHONY_KM_HOST=$FOUNDATION_API_URL/keyauth
-export HUBOT_SYMPHONY_AGENT_HOST=$FOUNDATION_API_URL/agent
+export HUBOT_SYMPHONY_HOST=foundation-dev.symphony.com
+export HUBOT_SYMPHONY_KM_HOST=foundation-dev-api.symphony.com
+export HUBOT_SYMPHONY_SESSIONAUTH_HOST=foundation-dev-api.symphony.com
+export HUBOT_SYMPHONY_AGENT_HOST=foundation-dev-api.symphony.com
 ```
 Read more on [hubot-symphony](https://github.com/symphonyoss/hubot-symphony) docs.
 
@@ -55,7 +54,6 @@ export HUBOT_SYMPHONY_PASSPHRASE=changeit
 - Bot butler parameters: log level and port to expose (for container deployment)
 ```
 export HUBOT_LOG_LEVEL=debug
-export PORT=8080
 ```
 
 ## Customise scripts
