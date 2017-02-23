@@ -44,6 +44,8 @@ export HUBOT_SYMPHONY_HOST=$FOUNDATION_POD_URL/pod
 export HUBOT_SYMPHONY_KM_HOST=$FOUNDATION_API_URL/keyauth
 export HUBOT_SYMPHONY_AGENT_HOST=$FOUNDATION_API_URL/agent
 ```
+Read more on [hubot-symphony](https://github.com/symphonyoss/hubot-symphony) docs.
+
 - Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the `./certs` folder
 ```
 export HUBOT_SYMPHONY_PUBLIC_KEY=./certs/bot-PublicCert.pem
