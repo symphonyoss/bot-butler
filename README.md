@@ -36,14 +36,14 @@ Bot configurations are defined by environment variables in `env.sh` file, locate
 
 Below are the configuration items:
 
-- Symphony Pod coordinates: the Symphony API endpoint coordinates; make sure they point to the Symphony Pod you want to use and that you have access to it:
+- Symphony Pod coordinates: the Symphony API endpoint coordinates; make sure they point to the Symphony Pod you want to use and that you have access to it; default values are pointing to the [Foundation Open Developer Platform](https://symphonyoss.atlassian.net/wiki/display/FM/Open+Developer+Platform):
 ```
 export HUBOT_SYMPHONY_HOST=foundation-dev.symphony.com
 export HUBOT_SYMPHONY_KM_HOST=foundation-dev-api.symphony.com
 export HUBOT_SYMPHONY_SESSIONAUTH_HOST=foundation-dev-api.symphony.com
 export HUBOT_SYMPHONY_AGENT_HOST=foundation-dev-api.symphony.com
 ```
-Read more on [hubot-symphony](https://github.com/symphonyoss/hubot-symphony) docs.
+Read more on [hubot-symphony](https://github.com/symphonyoss/hubot-symphony).
 
 - Bot Certificates: Ensure that you load your Bot user certificate and PrivateKey into the `./certs` folder
 ```
@@ -51,10 +51,11 @@ export HUBOT_SYMPHONY_PUBLIC_KEY=./certs/bot-PublicCert.pem
 export HUBOT_SYMPHONY_PRIVATE_KEY=./certs/bot-PrivateKey.pem
 export HUBOT_SYMPHONY_PASSPHRASE=changeit
 ```
-- Bot butler parameters: log level and port to expose (for container deployment)
-```
-export HUBOT_LOG_LEVEL=debug
-```
+
+If you want to know more about how to generate and register a certificate for your Symphony pod, checkout the [Foundation certificate-toolbox](http://github.com/symphonyoss/certificate-toolbox); bear in mind that:
+1. `HUBOT_SYMPHONY_PUBLIC_KEY` must point to `user/<bot-name>-cert.pem`
+2. `HUBOT_SYMPHONY_PRIVATE_KEY` must point to `user/<bot-name>-key.pem`
+3. `user/<bot-name>-key.pem` have no password; set it using `openssl rsa-in ./user/<bot-name>-key.pem -out ./user/<bot-name>.key.pem -des3`
 
 ## Customise scripts
 

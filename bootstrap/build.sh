@@ -12,11 +12,10 @@ if [[ -d $BUILD_FOLDER ]]; then
   echo "skipping build, $BUILD_FOLDER already exists"
 else
   mkdir $BUILD_FOLDER
-  # cp -Rf package.json env.sh certs $BUILD_FOLDER
   cp -Rf env.sh certs $BUILD_FOLDER
-  # mv node_modules $BUILD_FOLDER
   pushd "$_"
   export PATH=$PATH:$PWD/node_modules/.bin
   yo hubot --owner="$CONFIG_OWNER" --no-color --name="$BOT_NAME" --adapter='symphony' --defaults  --no-insight
   popd
+  cp -Rf src/scripts $BUILD_FOLDER
 fi
