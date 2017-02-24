@@ -20,14 +20,11 @@ MAINTAINER "Vinay" <vinay@symphony.com>
 # Update file permissions
     RUN chown -R butler:butler /home/butler
 
-# Install Yarn and configure bot working directory
+# Configure bot working directory
     USER butler
-    RUN curl -o- -L https://yarnpkg.com/install.sh | bash
-    RUN $HOME/.yarn/bin/yarn install --pure-lockfile
     # Not sure why this is needed, not working to define as devDependencies in package.json
-    RUN $HOME/.yarn/bin/yarn add yo generator-hubot --dev
-    RUN $HOME/.yarn/bin/yarn run generate-hubot
+    RUN npm install yo generator-hubot --save-dev
+    RUN npm run generate-hubot
 
 # Lets get this show on the road:
-    EXPOSE 8080
-    ENTRYPOINT $HOME/.yarn/bin/yarn run start-bot-butler
+    ENTRYPOINT npm run start-bot-butler

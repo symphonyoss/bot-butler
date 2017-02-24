@@ -9,12 +9,11 @@ Scripts can be tested locally or deployed as a Docker container; additional scri
 1. `git clone https://github.com/symphonyoss/bot-butler.git ; cd bot-butler` - Checkout the bot-butler project
 2. `cp env.sh.sample env.sh` - Configure environment variables (see below)
 3. [Install NodeJS](https://nodejs.org/en/download/) 4.0 or higher
-4. [Install yarn](https://yarnpkg.com/en/docs/install), a NodeJS build tool
-5. `yarn install --pure-lockfile` - Install all project dependencies (in `./node_modules` folder)
-6. `yarn generate-hubot` - Generate the hubot butler bot in `./butler-build` folder
-7. `yarn run start-bot-butler` - Run it
+4. `npm install` - Install all project dependencies (in `./node_modules` folder)
+5. `npm run generate-hubot` - Generate the hubot butler bot in `./butler-build` folder
+6. `npm run start-bot-butler` - Run it
 
-To clean the generated bot simply type `yarn run clean`; Yarn will delegate script execution to bash scripts located in the [./bootstrap](bootstrap) folder; to know more, checkout [package.json](package.json).
+To clean the generated bot simply type `npm run clean`; to know more about `npm run` scripts, checkout [package.json](package.json).
 
 ## Docker run
 1. Checkout project and set environment variables (as above, steps 1 and 2)
@@ -29,6 +28,11 @@ The root folder of the project will be mounted on `/home/butler`; as such, the f
 To override default values, use the following syntax:
 ```
 docker run -v /myscripts:/home/butler/scripts -v /mycerts:/home/butler/certs butler:v0.9.0
+```
+
+To check the Docker image contents, without launching the bot, run:
+```
+docker run -it --entrypoint /bin/bash butler:v0.9.0
 ```
 
 ## Configuration
@@ -57,6 +61,13 @@ If you want to know more about how to generate and register a certificate for yo
 2. `HUBOT_SYMPHONY_PRIVATE_KEY` must point to `user/<bot-name>-key.pem`
 3. `user/<bot-name>-key.pem` have no password; set it using `openssl rsa-in ./user/<bot-name>-key.pem -out ./user/<bot-name>.key.pem -des3`
 
+Each script defined in [src/scripts](src/scripts)) may need some environment variables to be configured, for example:
+```
+export HUBOT_JIRA_URL=https://symphonyoss.atlassian.net
+export HUBOT_JIRA_USERNAME=username
+export HUBOT_JIRA_PASSWORD=password
+```
+
 ## Customise scripts
 
 ### Using a script
@@ -80,11 +91,15 @@ The easiest way is to [publish the npm package](https://docs.npmjs.com/getting-s
 Bot Butler scripts depend on the following components:
 - [Hubot](https://hubot.github.com/)
 - [Hubot Symphony adapter](https://github.com/symphonyoss/hubot-symphony)
-- Other NPM dependencies defined in [package.json](package.json); please note that dependency versions are snapshotted by the [yarn.lock](yarn.lock) file, ensuring that the runtime node modules being used across different environments are the same.
+- [Yeoman](https://www.npmjs.com/package/yo)
+- [Generator Hubot](https://www.npmjs.com/package/generator-hubot)
 
-In order to update dependency versions to their latest allowed values (as specified by `package.json`), simply run the command `yarn install` without `--pure-lockfile`; read more on Yarn [install](https://yarnpkg.com/en/docs/cli/install) command.
+The [build.sh](bootstrap/build.sh) script invokes Yeoman, which generates a node project from scratch, using the generator-hubot; as such, the `package.json` `dependencies` definition doesn't impact the final bot runtime and it's only used to report on dependency metadata, such as security vulnerabilities and license compliance.
 
-The [Versioneye dashboard](https://www.versioneye.com/user/projects/58ac50944ca76f0047de1847?child=summary) reads the yarn.lock version available on github and provides license/security checks and notifications.
+The [Versioneye dashboard](https://www.versioneye.com/user/projects/58ac50944ca76f0047de1847?child=summary) reads the `yarn.lock` file committed in the root project folder; to update it:
+1. [Install Yarn](https://yarnpkg.com/lang/en/docs/install/#mac-tab)
+2. run `yarn install --force`
+3. Push any change to `yarn.lock`
 
 ## Documentation
 All scripts in hubot-symphony-scripts should contain a documentation header so people know everything about the script.
