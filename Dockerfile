@@ -17,13 +17,13 @@ MAINTAINER "Vinay" <vinay@symphony.com>
     # ADD ./env.sh /home/butler/env.sh
     # ADD ./certs /home/butler/certs/
 
+# Fixes issue https://github.com/npm/npm/issues/13306
+    RUN cd $(npm root -g)/npm && npm install fs-extra && sed -i -e s/graceful-fs/fs-extra/ -e s/fs.rename/fs.move/ ./lib/utils/rename.js
+
 # Update file permissions
     RUN chown -R butler:butler /home/butler
-
 # Configure bot working directory
     USER butler
-    # Not sure why this is needed, not working to define as devDependencies in package.json
-    RUN npm install yo generator-hubot --save-dev
     RUN npm run generate-hubot
 
 # Lets get this show on the road:
