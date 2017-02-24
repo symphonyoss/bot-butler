@@ -27,7 +27,6 @@ MAINTAINER "Vinay" <vinay@symphony.com>
     # Not sure why this is needed, not working to define as devDependencies in package.json
     RUN $HOME/.yarn/bin/yarn add yo generator-hubot --dev
     RUN $HOME/.yarn/bin/yarn run generate-hubot
-    RUN cp -rf src/scripts butler-build/scripts
 
 # Lets get this show on the road:
     EXPOSE 8080
