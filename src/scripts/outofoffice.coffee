@@ -66,13 +66,10 @@ module.exports = (robot) ->
     if existing?.outOfOffice?.away
         robot.adapter._sendDirectMessageToUserId(msg.message.user.id,
         {
-          format: 'MESSAGEML'
-          text: "<messageML>Hey <mention uid=\"#{msg.message.user.id}\"/><br/><b>Auto-Reply from</b> #{existing.displayName}<br/>#{existing?.outOfOffi
+          msg.send "<messageML>Hey <mention uid=\"#{msg.message.user.id}\"/><br/><b>Auto-Reply from</b> #{existing.displayName}<br/>#{existing?.outOfOffi
 ce?.awaymsg}</messageML>"
         })
-        msg.send {
-          format: 'MESSAGEML'
-          text: "<messageML>Hey <mention uid=\"#{msg.message.user.id}\"/><br/><b>Auto-Reply from</b> #{existing.displayName}<br/>#{existing?.outOfOffi
+        msg.send "<messageML>Hey <mention uid=\"#{msg.message.user.id}\"/><br/><b>Auto-Reply from</b> #{existing.displayName}<br/>#{existing?.outOfOffi
 ce?.awaymsg}</messageML>"
         }
 
