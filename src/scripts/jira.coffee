@@ -93,11 +93,16 @@ module.exports = (robot) ->
                     message = "[ Cache" + key + "] " + json.fields.summary
                     message += '\n Cache Status: ' + json.fields.status.name
   #        Return API Results
-                    msg.send {
-                           format: 'MESSAGEML'
-                           text: "<messageML><b>#{key}</b> <b>#{json.fields.summary}</b><br/><i>Status: #{json.fields.status.name.toUpperCase()}    Priority: #{json.fields.priority.name.toUpperCase()}</i><br/><i>Assignee: #{json
-  .fields.assignee.displayName}        Reported By: #{json.fields.reporter.displayName}</i><br/><a href=\"#{entities.encode(jiraUrl)}/browse/#{key}\"/></messageML>"
-                    }
+                    msg.send "<messageML><card iconSrc=\"http://www.icone-png.com/png/52/51835.png\" accent=\"tempo-bg-color--blue\"><header><b
+>#{key}</b> <b>#{json.fields.summary}</b></header><body>#{json.fields.description}<br/><a href=\"#{entities.encode(jiraUrl)}/browse/#{key}\"/
+></body></card></messageML>"
+
+
+# <messageML><card iconSrc="https://symphony.foundation/images/SymphonyLlcSymbol.png" accent="tempo-bg-color--purple"><header><a href="https://perzoinc.atlassian.net/browse/ESS-984">ESS-984</a> Checklist: WebRTC settings for s40<i>(header)</i></header><body>d<br/><br/><i>(body)</i></body></card></messageML>
+#                    msg.send {
+#                           format: 'MESSAGEML'
+#                           text: "<messageML><b>#{key}</b> <b>#{json.fields.summary}</b><br/><i>Status: #{json.fields.status.name.toUpperCase()}    Priority: #{json.fields.priority.name.toUpperCase()}</i><br/><i>Assignee: #{json.fields.assignee.displayName}        Reported By: #{json.fields.reporter.displayName}</i><br/><a href=\"#{entities.encode(jiraUrl)}/browse/#{key}\"/></messageML>"
+#                    }
   #                  cache.push({issue: issue, expires: now + 120000, message: message})
                   catch error
                     try

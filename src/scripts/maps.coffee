@@ -98,7 +98,4 @@ module.exports = (robot) ->
               location +
               "&t=m&z=11"
 
-    msg.send {
-      format: 'MESSAGEML'
-      text: "<messageML><a href=\"#{entities.encode(url)}\"/></messageML>"
-    }
+    msg.send "<messageML><a href=\"#{entities.encode(url)}\"/></messageML>"

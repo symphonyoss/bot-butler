@@ -93,10 +93,7 @@ module.exports = (robot) ->
         msg.send result.description
         return
 
-      msg.send {
-       format: 'MESSAGEML'
-       text: "<messageML><b>#{result.ticket.id}</b> <b>#{result.ticket.subject}</b><br/><i>Status: #{result.ticket.status.toUpperCase()}</i><br/><a href=\"#{entities.encode(tickets_url)}/#{result.ticket.id}\"/></messageML>"
-      }
+      msg.send "<messageML><b>#{result.ticket.id}</b> <b>#{result.ticket.subject}</b><br/><i>Status: #{result.ticket.status.toUpperCase()}</i><br/><a href=\"#{entities.encode(tickets_url)}/#{result.ticket.id}\"/></messageML>"
 
   robot.respond /(?:zendesk|zd) (all)/i, (msg) ->
     zendesk_request msg, queries.unsolved, (results) ->
@@ -126,42 +123,27 @@ module.exports = (robot) ->
   robot.respond /(?:zendesk|zd) list (all)/i, (msg) ->
     zendesk_request msg, queries.unsolved, (results) ->
       for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
+        msg.send "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
 
   robot.respond /(?:zendesk|zd) list new/i, (msg) ->
     zendesk_request msg, queries.new, (results) ->
       for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
+        msg.send "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
 
   robot.respond /(?:zendesk|zd) list pending/i, (msg) ->
     zendesk_request msg, queries.pending, (results) ->
       for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
+        msg.send "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
 
   robot.respond /(?:zendesk|zd) list escalated/i, (msg) ->
     zendesk_request msg, queries.escalated, (results) ->
       for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
+        msg.send "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
 
   robot.respond /(?:zendesk|zd) list open/i, (msg) ->
     zendesk_request msg, queries.open, (results) ->
       for result in results.results
-        msg.send {
-        format: 'MESSAGEML'
-        text: "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
-        }
+        msg.send "<messageML><b>#{result.id}</b> <b>#{result.subject}</b> is <b>#{result.status.toUpperCase()}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.id}\"/></messageML>"
 
   robot.respond /(?:zendesk|zd-)([\d]+)$/i, (msg) ->
     ticket_id = msg.match[1]
@@ -170,7 +152,4 @@ module.exports = (robot) ->
         msg.send result.description
         return
 
-       msg.send {
-       format: 'MESSAGEML'
-       text: "<messageML><b>#{result.ticket.id}</b> <b>#{result.ticket.subject}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.ticket.id}\"/><br/>Status: #{result.ticket.status.toUpperCase()}</messageML>"
-       }
+       msg.send "<messageML><b>#{result.ticket.id}</b> <b>#{result.ticket.subject}</b><br/><a href=\"#{entities.encode(tickets_url)}/#{result.ticket.id}\"/><br/>Status: #{result.ticket.status.toUpperCase()}</messageML>"

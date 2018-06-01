@@ -42,9 +42,17 @@ _lookupPrice = (robot, msg, ticker) ->
         try
           json = JSON.parse(body)
           msg.send {
-            format: 'MESSAGEML'
-            text: "<messageML><cash tag=\"#{json.results[0].symbol}\"/> @ <b>#{json.results[0].lastPrice}</b> #{json.results[0].netChange} (#{json.results[0].percentChange}%) <br/>Open: #{json.results[0].open} High: #{json.results[0].high} Low: #{json.results[0].low} Close: #{json.results[0].close}</messageML>"
+            text: '<messageML><div class="entity" data-entity-id="tabletable"><table><tr><th>Symbol</th><th>Name</th><th>Price</th><th>Change
+</th><th>% Change</th><th>Open</th><th>High</th><th>Low</th><th>Close</th></tr><#list entity["tabletable"].tr as tr><tr><td>${tr.col1}</td><t
+d>${tr.col2}</td><td>${tr.col3}</td><td>${tr.col4}</td><td>${tr.col5}</td><td>${tr.col6}</td><td>${tr.col7}</td><td>${tr.col8}</td><td>${tr.c
+ol9}</td></tr></#list></table></div></messageML>',
+            data: JSON.stringify({"tabletable": {"tr": [ {"col1": "<cash tag=\"#{json.results[0].symbol}\"/>", "col2": "#{json.results[0].nam
+e}","col3": "#{json.results[0].lastPrice}", "col4": "#{json.results[0].netChange}", "col5": "(#{json.results[0].percentChange}%)", "col6": "#
+{json.results[0].open}", "col7": "#{json.results[0].high}", "col8": "#{json.results[0].low}", "col9": "#{json.results[0].close}"}]}})
           }
+
+
+          #msg.send "<messageML><cash tag=\"#{json.results[0].symbol}\"/> @ <b>#{json.results[0].lastPrice}</b> #{json.results[0].netChange} (#{json.results[0].percentChange}%) <br/>Open: #{json.results[0].open} High: #{json.results[0].high} Low: #{json.results[0].low} Close: #{json.results[0].close}</messageML>"
         catch error
           msg.send "Failed to look up $#{ticker}"
 
